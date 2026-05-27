@@ -63,10 +63,29 @@ p.f .c{color:var(--c);font-size:11px;margin-left:2px}
   align-items:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));
   background:rgba(255,255,255,0.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   border-top:1px solid var(--line);z-index:10}
-.ctrl button{appearance:none;border:none;background:none;font-size:22px;
-  color:var(--accent);padding:8px 14px;cursor:pointer;font-weight:600}
-.ctrl button:active{transform:scale(.92)}
-.ctrl .pos{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ctrl button{appearance:none;border:none;background:none;
+  color:var(--accent);padding:10px 12px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:12px;
+  transition:transform .12s ease, background .12s ease, color .12s ease}
+.ctrl button:active{transform:scale(.9);background:rgba(31,56,100,0.10)}
+.ctrl button svg{width:26px;height:26px;display:block;stroke-width:2.2}
+.ctrl .pos{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;
+  min-width:48px;text-align:center;font-weight:600}
+
+/* Primary random button (FAB-style) */
+.ctrl button.rand{
+  width:54px;height:54px;padding:0;margin:-14px 0 0 6px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 14px rgba(31,56,100,0.32),0 2px 4px rgba(0,0,0,0.08);
+  transition:transform .15s ease, box-shadow .15s ease, filter .15s}
+.ctrl button.rand:active{
+  transform:scale(.92);box-shadow:0 3px 8px rgba(31,56,100,0.35)}
+.ctrl button.rand:hover{filter:brightness(1.08)}
+.ctrl button.rand svg{width:26px;height:26px;display:block}
+@keyframes randSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.ctrl button.rand.spin svg{animation:randSpin .55s cubic-bezier(.4,.0,.2,1)}
 
 /* Search overlay */
 .search{position:fixed;inset:0;background:var(--bg);z-index:100;display:none;
@@ -96,7 +115,7 @@ p.f .c{color:var(--c);font-size:11px;margin-left:2px}
 <div class="stack" id="stack">
 <section class="card" data-i="0" data-slug="__home__"><div class="card-inner"><header class="hdr home-hdr">
   <div class="brand">GeoBee Encyclopedia</div>
-  <div class="brandsub">Tap a country to open. Use ⌕ to search · ⤨ for random.</div>
+  <div class="brandsub">Tap a country to open. Search to filter · roll the die for random.</div>
 </header>
 <div class="stats"><span><b>55</b> entries</span><span>·</span><span><b>1275</b> quiz items</span></div>
 <h2 class="reghd">Caribbean <span class="rc">4</span></h2>
@@ -1675,12 +1694,12 @@ p.f .c{color:var(--c);font-size:11px;margin-left:2px}
 </div>
 
 <div class="ctrl">
-  <button id="homeBtn" aria-label="Home">⌂</button>
-  <button id="searchBtn" aria-label="Search">⌕</button>
-  <button id="prevBtn" aria-label="Previous">↑</button>
+  <button id="homeBtn" aria-label="Home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.2L12 4l9 7.2"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></button>
+  <button id="searchBtn" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></button>
+  <button id="prevBtn" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 14 12 8 18 14"/></svg></button>
   <span class="pos" id="pos">Home</span>
-  <button id="nextBtn" aria-label="Next">↓</button>
-  <button id="randBtn" aria-label="Random">⤨</button>
+  <button id="nextBtn" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 10 12 16 18 10"/></svg></button>
+  <button id="randBtn" class="rand" aria-label="Random country"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3.5"/><circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="8" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="8" cy="16" r="1.2" fill="currentColor" stroke="none"/><circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none"/></svg></button>
 </div>
 
 <div class="search" id="search">
@@ -1753,8 +1772,10 @@ document.getElementById('nextBtn').onclick = () => goTo(cur+1, true);
 document.getElementById('randBtn').onclick = () => {
   if(INDEX.length < 2) return;
   let n; do { n = 1 + Math.floor(Math.random()*INDEX.length); } while (n === cur);
+  const btn = document.getElementById('randBtn');
+  btn.classList.remove('spin'); void btn.offsetWidth; btn.classList.add('spin');
   goTo(n, true);
-  showToast('Random: ' + INDEX[n-1].name);
+  showToast('🎲 ' + INDEX[n-1].name);
 };
 
 const searchOverlay = document.getElementById('search');
